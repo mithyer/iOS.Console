@@ -16,15 +16,16 @@ class DiskOutput {
     static let outputPathPrefix = NSSearchPathForDirectoriesInDomains(FileManager.SearchPathDirectory.cachesDirectory, .userDomainMask, true).first! + "/ray/console/"
 
     private static func newFileHandler() -> FileHandle {
-        if !FileManager.default.fileExists(atPath: outputPathPrefix) {
-            try! FileManager.default.createDirectory(atPath: outputPathPrefix, withIntermediateDirectories: true, attributes: nil)
+        let fileManager = FileManager.default
+        if !fileManager.fileExists(atPath: outputPathPrefix) {
+            try! fileManager.createDirectory(atPath: outputPathPrefix, withIntermediateDirectories: true, attributes: nil)
         }
         let now = Date()
         let nowString = Console.dateFormatter.string(from: now)
         curFilePath = outputPathPrefix + nowString
         curFileName = "Log_" + nowString
-        if !FileManager.default.fileExists(atPath: curFilePath!) {
-            let res = FileManager.default.createFile(atPath: curFilePath!, contents: Data(), attributes: [.creationDate: now, .ownerAccountName: "ray"])
+        if !fileManager.fileExists(atPath: curFilePath!) {
+            let res = fileManager.createFile(atPath: curFilePath!, contents: Data(), attributes: [.creationDate: now, .ownerAccountName: "ray"])
             assert(res)
         }
         let handler = FileHandle(forWritingAtPath: curFilePath!)!
@@ -34,7 +35,7 @@ class DiskOutput {
     static var fileHandler: FileHandle = DiskOutput.newFileHandler()
     
     static func resetFileHandler() {
-        DispatchQueue.main.async {
+        writeQueue.async {
             self.fileHandler.synchronizeFile()
             self.fileHandler.closeFile()
             self.fileHandler = self.newFileHandler()
@@ -51,7 +52,7 @@ class DiskOutput {
     static let writeQueue = DispatchQueue(label: "ray.console.output")
     
     static func append(string: String) {
-        writeQueue.async {
+        writeQueue.sync {
             let data = string.data(using: .utf8)!
             self.fileHandler.seekToEndOfFile()
             self.fileHandler.write(data)
@@ -90,7 +91,7 @@ open class Console {
 
     static var logs: [Log] = []
     
-    static let addLogQuene: DispatchQueue = DispatchQueue(label: "Ralyo.Debug.Console.addLogQueue")
+    static let printLogQuene: DispatchQueue = DispatchQueue(label: "ray.console.printLogQueue")
     
     public static func attach(toWindow window: UIWindow) {
         self.consoleVC.window = window
@@ -104,17 +105,13 @@ open class Console {
         return formatter
     }()
     
-    static func currentTimeStamp() -> String {
-        return dateFormatter.string(from: Date())
-    }
-    
     public static var textAppearance: [NSAttributedStringKey: Any] = [.font: UIFont(name: "Menlo", size: 12.0)!, .foregroundColor: UIColor.white]
     static let maxLogAmount = 10000
     
     public static func print(_ items: Any..., separator: String = " ", color: UIColor = UIColor.white, global: Bool = true) {
         
         var content = ""
-        addLogQuene.async {
+        printLogQuene.async {
             for item in items[0..<items.count-1] {
                 content.append("\(item)" + separator)
             }
@@ -127,18 +124,18 @@ open class Console {
             if self.logs.count >= maxLogAmount {
                 self.logs.removeSubrange(..<Int(self.logs.count/2))
             }
-            DiskOutput.append(string: dateFormatter.string(from: now) + ": " + log.content + "\n")
             DispatchQueue.main.async {
                 self.consoleVC.reloadData()
             }
             if global, content.count > 0 {
                 Swift.print(content, separator: separator)
             }
+            DiskOutput.append(string: dateFormatter.string(from: now) + ": " + log.content + "\n")
         }
     }
     
     public static func clear() {
-        addLogQuene.async {
+        printLogQuene.sync {
             self.logs.removeAll()
             DiskOutput.resetFileHandler()
             DispatchQueue.main.async {

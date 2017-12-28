@@ -281,21 +281,13 @@ class ConsoleVC: UIViewController {
         
     }
     
-    override func viewWillTransition(to size: CGSize, with coordinator: UIViewControllerTransitionCoordinator) {
-        if self.inputTextField.isFirstResponder || self.filterTextField.isFirstResponder {
-            return
-        }
-        //self.textFieldView.frame = CGRect.init(x: 0, y: size.height - fieldConst.height, width: size.width, height: fieldConst.height)
-        //self.tableView.frame = CGRect.init(x: 0, y: 0, width: size.width, height: self.textFieldView.frame.origin.y)
-    }
-    
     var attrForIndexPath: [IndexPath: NSAttributedString] = [:]
     
     var _filteredLogs: [Console.Log]?
     var filteredLogs: [Console.Log] {
         get {
-            if let text = filterTextField.text {
-                return text.count > 0 ? _filteredLogs ?? Console.logs : Console.logs
+            if let text = filterTextField.text, text.count > 0, let logs = _filteredLogs {
+                return logs
             }
             return Console.logs
         }
@@ -303,7 +295,7 @@ class ConsoleVC: UIViewController {
             _filteredLogs = new
         }
     }
-    var filterQueue = DispatchQueue.init(label: "ConsoleVC.filterQueue", qos: DispatchQoS.userInteractive, attributes: DispatchQueue.Attributes.concurrent, autoreleaseFrequency: DispatchQueue.AutoreleaseFrequency.inherit, target: nil)
+    var filterQueue = DispatchQueue.init(label: "ray.console.vc.filterQueue", qos: DispatchQoS.userInteractive, attributes: DispatchQueue.Attributes.concurrent, autoreleaseFrequency: DispatchQueue.AutoreleaseFrequency.inherit, target: nil)
 }
 
 extension ConsoleVC: UITableViewDataSource, UITableViewDelegate {
