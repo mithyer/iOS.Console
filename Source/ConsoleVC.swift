@@ -52,8 +52,8 @@ class ConsoleVC: UIViewController {
         static let leftPading: CGFloat = 35
     }
     
-    lazy var inputTextField: UITextField = { [weak self] in
-        let textField = UITextField.init(frame: CGRect.init(x: fieldConst.leftPading, y: 0, width: self!.view.bounds.width - fieldConst.leftPading, height: fieldConst.height))
+    lazy var inputTextField: UITextField = { [unowned self] in
+        let textField = UITextField.init(frame: CGRect.init(x: fieldConst.leftPading, y: 0, width: self.view.bounds.width - fieldConst.leftPading, height: fieldConst.height))
         textField.borderStyle = .roundedRect
         textField.autocapitalizationType = .none
         textField.autocorrectionType = .no
@@ -65,9 +65,9 @@ class ConsoleVC: UIViewController {
         return textField
         }()
     
-    lazy var filterTextField: UITextField = { [weak self] in
-        let textField = UITextField.init(frame: CGRect.init(x: fieldConst.leftPading, y: 0, width: self!.view.bounds.width - fieldConst.leftPading, height: fieldConst.height))
-        self!.view.addSubview(textField)
+    lazy var filterTextField: UITextField = { [unowned self] in
+        let textField = UITextField.init(frame: CGRect.init(x: fieldConst.leftPading, y: 0, width: self.view.bounds.width - fieldConst.leftPading, height: fieldConst.height))
+        self.view.addSubview(textField)
         textField.borderStyle = .roundedRect
         textField.autocapitalizationType = .none
         textField.spellCheckingType = .no
@@ -80,7 +80,7 @@ class ConsoleVC: UIViewController {
         return textField
     }()
 
-    lazy var switchToInputBtn: UIButton = { [weak self] in
+    lazy var switchToInputBtn: UIButton = { [unowned self] in
         let btn = UIButton.init(type: .custom)
         btn.setTitle("log", for: .normal)
         btn.setTitleColor(.white, for: .normal)
@@ -90,11 +90,11 @@ class ConsoleVC: UIViewController {
         btn.autoresizingMask = [.flexibleWidth, .flexibleRightMargin]
         btn.titleLabel?.adjustsFontSizeToFitWidth = true
         btn.titleLabel?.font = .systemFont(ofSize: 10)
-        btn.addTarget(self!, action: #selector(switchBtnTapped), for: .touchUpInside)
+        btn.addTarget(self, action: #selector(switchBtnTapped), for: .touchUpInside)
         return btn
         }()
     
-    lazy var switchToFilterBtn: UIButton = { [weak self] in
+    lazy var switchToFilterBtn: UIButton = { [unowned self] in
         let btn = UIButton.init(type: .custom)
         btn.setTitle("Filter", for: .normal)
         btn.setTitleColor(.white, for: .normal)
@@ -104,24 +104,24 @@ class ConsoleVC: UIViewController {
         btn.autoresizingMask = [.flexibleWidth, .flexibleRightMargin]
         btn.titleLabel?.adjustsFontSizeToFitWidth = true
         btn.titleLabel?.font = .systemFont(ofSize: 10)
-        btn.addTarget(self!, action: #selector(switchBtnTapped), for: .touchUpInside)
+        btn.addTarget(self, action: #selector(switchBtnTapped), for: .touchUpInside)
         return btn
         }()
     
     
-    lazy var textFieldView: UIView = { [weak self] in
+    lazy var textFieldView: UIView = { [unowned self] in
         let height: CGFloat = 30
-        let view = UIView.init(frame: CGRect.init(x: 0, y: self!.view.bounds.height - fieldConst.height, width: self!.view.bounds.width, height: fieldConst.height))
+        let view = UIView.init(frame: CGRect.init(x: 0, y: self.view.bounds.height - fieldConst.height, width: self.view.bounds.width, height: fieldConst.height))
         view.autoresizingMask = [.flexibleWidth, .flexibleTopMargin]
         view.addSubview(inputTextField)
         view.addSubview(filterTextField)
         
-        view.addSubview(self!.switchToInputBtn)
-        view.addSubview(self!.switchToFilterBtn)
+        view.addSubview(self.switchToInputBtn)
+        view.addSubview(self.switchToFilterBtn)
 
         inputTextField.isHidden = true
-        self!.switchToFilterBtn.isSelected = true
-        self!.view.addSubview(view)
+        self.switchToFilterBtn.isSelected = true
+        self.view.addSubview(view)
         
         return view
     }()
@@ -142,38 +142,38 @@ class ConsoleVC: UIViewController {
         }
     }
     
-    lazy var tableView: UITableView = { [weak self] in
-        let tv = UITableView.init(frame: self!.view.bounds, style: UITableViewStyle.plain)
+    lazy var tableView: UITableView = { [unowned self] in
+        let tv = UITableView.init(frame: self.view.bounds, style: UITableViewStyle.plain)
         tv.backgroundColor = .black
         tv.separatorStyle = .none
         tv.delegate = self
         tv.dataSource = self
         tv.register(Cell.self, forCellReuseIdentifier: cellReuseId)
         tv.autoresizingMask = [.flexibleWidth, .flexibleHeight]
-        self!.view.addSubview(tv)
+        self.view.addSubview(tv)
         tv.contentInset = .init(top: 50, left: 0, bottom: fieldConst.height, right: 0)
         return tv
     }()
     
-    lazy var closeBtn: UIButton = { [weak self] in
+    lazy var closeBtn: UIButton = { [unowned self] in
         let btn = UIButton.init(type: .custom)
         btn.setTitle("×", for: .normal)
         btn.titleLabel!.font = UIFont.systemFont(ofSize: 30)
-        btn.frame = CGRect.init(x: 5, y: 5 + (self!.prefersStatusBarHidden ? 10 : 0), width: 30, height: 30)
+        btn.frame = CGRect.init(x: 5, y: 5 + (self.prefersStatusBarHidden ? 10 : 0), width: 30, height: 30)
         btn.setTitleColor(.white, for: .normal)
         btn.addTarget(self, action: #selector(close), for: .touchUpInside)
         btn.autoresizingMask = [.flexibleBottomMargin, .flexibleRightMargin]
-        self!.view.addSubview(btn)
+        self.view.addSubview(btn)
         return btn
     }()
     
-    lazy var actionsBtn: UIButton = { [weak self] in
+    lazy var actionsBtn: UIButton = { [unowned self] in
         let btn = UIButton.init(type: .infoLight)
-        btn.frame = CGRect.init(x: self!.view.bounds.width - 35, y: 5 + (self!.prefersStatusBarHidden ? 10 : 0), width: 30, height: 30)
+        btn.frame = CGRect.init(x: self.view.bounds.width - 35, y: 5 + (self.prefersStatusBarHidden ? 10 : 0), width: 30, height: 30)
         btn.setTitleColor(.white, for: .normal)
         btn.addTarget(self, action: #selector(additionalActions), for: .touchUpInside)
         btn.autoresizingMask = [.flexibleBottomMargin, .flexibleLeftMargin]
-        self!.view.addSubview(btn)
+        self.view.addSubview(btn)
         return btn
     }()
     
