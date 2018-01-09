@@ -113,13 +113,13 @@ class ConsoleVC: UIViewController {
         let height: CGFloat = 30
         let view = UIView.init(frame: CGRect.init(x: 0, y: self.view.bounds.height - fieldConst.height, width: self.view.bounds.width, height: fieldConst.height))
         view.autoresizingMask = [.flexibleWidth, .flexibleTopMargin]
-        view.addSubview(inputTextField)
-        view.addSubview(filterTextField)
+        view.addSubview(self.inputTextField)
+        view.addSubview(self.filterTextField)
         
         view.addSubview(self.switchToInputBtn)
         view.addSubview(self.switchToFilterBtn)
 
-        inputTextField.isHidden = true
+        self.inputTextField.isHidden = true
         self.switchToFilterBtn.isSelected = true
         self.view.addSubview(view)
         
