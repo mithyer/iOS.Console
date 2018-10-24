@@ -22,7 +22,7 @@ class ConsoleVC: UIViewController {
         
         var label: UILabel?
         
-        override init(style: UITableViewCellStyle, reuseIdentifier: String?) {
+        override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
             super.init(style: style, reuseIdentifier: reuseIdentifier)
             self.backgroundColor = .clear
             label = UILabel.init()
@@ -143,7 +143,7 @@ class ConsoleVC: UIViewController {
     }
     
     lazy var tableView: UITableView = { [unowned self] in
-        let tv = UITableView.init(frame: self.view.bounds, style: UITableViewStyle.plain)
+        let tv = UITableView.init(frame: self.view.bounds, style: .plain)
         tv.backgroundColor = .black
         tv.separatorStyle = .none
         tv.delegate = self
@@ -186,8 +186,8 @@ class ConsoleVC: UIViewController {
         let _ = self.closeBtn
         let _ = self.actionsBtn
         
-        keyboardObserver = NotificationCenter.default.addObserver(forName: .UIKeyboardWillChangeFrame, object: nil, queue: nil, using: {[weak self] noti in
-            if let frame = noti.userInfo?[UIKeyboardFrameEndUserInfoKey] as? CGRect, let textFieldView = self?.textFieldView, let tableView = self?.tableView {
+        keyboardObserver = NotificationCenter.default.addObserver(forName: UIResponder.keyboardWillChangeFrameNotification, object: nil, queue: nil, using: {[weak self] noti in
+            if let frame = noti.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? CGRect, let textFieldView = self?.textFieldView, let tableView = self?.tableView {
                 textFieldView.frame.origin.y = frame.origin.y - textFieldView.bounds.height
                 tableView.frame.size.height = textFieldView.frame.origin.y
             }
@@ -237,7 +237,7 @@ class ConsoleVC: UIViewController {
         self.attrForIndexPath.removeAll()
         self.tableView.reloadData()
         if self.filteredLogs.count > 0 {
-            self.tableView.scrollToRow(at: IndexPath.init(row: self.filteredLogs.count - 1, section: 0), at: UITableViewScrollPosition.bottom, animated: false)
+            self.tableView.scrollToRow(at: IndexPath.init(row: self.filteredLogs.count - 1, section: 0), at: UITableView.ScrollPosition.bottom, animated: false)
         }
     }
     
@@ -249,7 +249,7 @@ class ConsoleVC: UIViewController {
     
     @objc func additionalActions() {
         
-        let alert = UIAlertController(title: nil, message: nil, preferredStyle: UIAlertControllerStyle.actionSheet)
+        let alert = UIAlertController(title: nil, message: nil, preferredStyle: .actionSheet)
         
         let defaultActions = [
             UIAlertAction(title: "send log by mail", style: .default) { action in
@@ -260,7 +260,7 @@ class ConsoleVC: UIViewController {
                     composeViewController.addAttachmentData(data, mimeType: "Plain text", fileName: DiskOutput.curFileName!)
                     self.present(composeViewController, animated: true, completion: nil)
                 } else {
-                    let alert = UIAlertController.init(title: "Notice!", message: "No log, find history logs in: " + DiskOutput.outputPathPrefix, preferredStyle: UIAlertControllerStyle.alert)
+                    let alert = UIAlertController.init(title: "Notice!", message: "No log, find history logs in: " + DiskOutput.outputPathPrefix, preferredStyle: UIAlertController.Style.alert)
                     alert.addAction(UIAlertAction.init(title: "Ok", style: .default, handler: nil))
                     self.present(alert, animated: true, completion: nil)
                 }
@@ -274,7 +274,7 @@ class ConsoleVC: UIViewController {
             alert.addAction(action)
         }
         
-        let cancelAction = UIAlertAction(title: "cancel", style: UIAlertActionStyle.cancel, handler: nil)
+        let cancelAction = UIAlertAction(title: "cancel", style: .cancel, handler: nil)
         alert.addAction(cancelAction)
         
         self.present(alert, animated: true, completion: nil)
@@ -317,7 +317,7 @@ extension ConsoleVC: UITableViewDataSource, UITableViewDelegate {
         text.addAttribute(.foregroundColor, value: log.color, range: range)
         
         timeStamped.append(text)
-        timeStamped.addAttributes([NSAttributedStringKey.font: UIFont.systemFont(ofSize: 10)], range: NSRange.init(location: 0, length: timeStamped.length))
+        timeStamped.addAttributes([NSAttributedString.Key.font: UIFont.systemFont(ofSize: 10)], range: NSRange.init(location: 0, length: timeStamped.length))
         return timeStamped
     }
     

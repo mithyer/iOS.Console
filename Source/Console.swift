@@ -105,7 +105,7 @@ open class Console {
         return formatter
     }()
     
-    public static var textAppearance: [NSAttributedStringKey: Any] = [.font: UIFont(name: "Menlo", size: 12.0)!, .foregroundColor: UIColor.white]
+    public static var textAppearance: [NSAttributedString.Key: Any] = [.font: UIFont(name: "Menlo", size: 12.0)!, .foregroundColor: UIColor.white]
     static let maxLogAmount = 10000
     
     public static func print(_ items: Any..., separator: String = " ", color: UIColor = UIColor.white, global: Bool = true) {
@@ -148,7 +148,7 @@ open class Console {
 
 extension UIWindow {
     
-    open override func motionBegan(_ motion: UIEventSubtype, with event: UIEvent?) {
+    open override func motionBegan(_ motion: UIEvent.EventSubtype, with event: UIEvent?) {
         super.motionBegan(motion, with: event)
         if let window = UIApplication.shared.delegate?.window, self == window, self == Console.consoleVC.window {
             Console.consoleVC.show()
