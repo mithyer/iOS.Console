@@ -54,14 +54,26 @@ open class Console {
         let window = UIWindow()
         window.windowLevel = UIWindow.Level.init(UIWindow.Level.statusBar.rawValue + 1)
         window.rootViewController = Console.consoleVC
-        window.isHidden = true
+        window.isHidden = _windowIsHidden
         window.frame = UIScreen.main.bounds
         return window
     }()
+    
+    static var _windowIsHidden: Bool = true
+    static var windowIsHidden: Bool {
+        set {
+            _windowIsHidden = newValue
+            self.window.isHidden = newValue
+        }
+        get {
+            return _windowIsHidden
+        }
+    }
+    
     static let consoleVC: ConsoleVC = {
         let vc = ConsoleVC()
         vc.tappedClose = {
-            Console.window.isHidden = true
+            Console.windowIsHidden = true
         }
         return vc
     }()
@@ -116,8 +128,8 @@ extension UIWindow {
     
     open override func motionBegan(_ motion: UIEvent.EventSubtype, with event: UIEvent?) {
         super.motionBegan(motion, with: event)
-        if motion == .motionShake, Console.window.isHidden {
-            Console.window.isHidden = false
+        if motion == .motionShake, Console.windowIsHidden {
+            Console.windowIsHidden = false
             Console.consoleVC.reloadData()
         }
     }

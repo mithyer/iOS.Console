@@ -7,7 +7,7 @@
 //
 
 
-public func console_print<T>(_ item: T, color: UIColor? = nil, global: Bool? = nil, file: StaticString? = #file, line: UInt? = #line) {
+public func console_print<T>(_ item: @autoclosure () -> T, color: UIColor? = nil, global: Bool? = nil, file: StaticString? = #file, line: UInt? = #line) {
     #if !PUBLISH
     Console.print(item, color: color, global: global, file: file, line: line, isInput: false)
     #endif
@@ -30,9 +30,9 @@ public func console_assertFailure(_ message: @autoclosure () -> String = "", fil
 #if !PUBLISH
 extension Console {
     
-    static func print<T>(_ item: T, color: UIColor? = nil, global: Bool? = nil, file: StaticString? = #file, line: UInt? = #line, isInput: Bool) {
+    static func print<T>(_ item: @autoclosure () -> T, color: UIColor? = nil, global: Bool? = nil, file: StaticString? = #file, line: UInt? = #line, isInput: Bool) {
         
-        let content = "\(item)"
+        let content = "\(item())"
         let now = Date()
         
         var fileName: String?
@@ -54,7 +54,7 @@ extension Console {
                     printText.append(" \(line)")
                 }
             }
-            printText.append(": \(content)")
+            printText.append(": \(content)\n")
             Swift.print(printText)
         }
         
@@ -71,7 +71,7 @@ extension Console {
             Log.DiskOutput.resetFileHandler()
         }
         _ = Log.DiskOutput.append(log)
-        if !Console.window.isHidden {
+        if !Console.windowIsHidden {
             DispatchQueue.main.async {
                 self.consoleVC.reloadData()
             }
