@@ -7,6 +7,7 @@
 //
 #if !PUBLISH
 import UIKit
+import MessageUI
 
 class LogFileVC: UITableViewController {
 
@@ -69,7 +70,7 @@ class LogFileVC: UITableViewController {
         
         let name = self.fileNames[indexPath.row]
         if let logs = Console.Log.DiskOutput.logs(forFileName: name) {
-            let logListVC = LogListVC.init(logs: logs)
+            let logListVC = LogListVC.init(name: name, logs: logs)
             self.navigationController?.pushViewController(logListVC, animated: true)
         }
         tableView.deselectRow(at: indexPath, animated: true)
@@ -91,7 +92,7 @@ class LogFileVC: UITableViewController {
 
 extension LogFileVC {
     
-    class LogListVC: UIViewController {
+    class LogListVC: UIViewController, MFMailComposeViewControllerDelegate {
         
         override var prefersStatusBarHidden: Bool {
             return true
@@ -104,9 +105,11 @@ extension LogFileVC {
         }()
         
         var logs: [Console.Log]!
-        init(logs: [Console.Log]) {
+        var name: String!
+        init(name: String, logs: [Console.Log]) {
             super.init(nibName: nil, bundle: nil)
             self.logs = logs
+            self.name = name
         }
         
         required init?(coder aDecoder: NSCoder) {
@@ -116,8 +119,37 @@ extension LogFileVC {
         override func viewDidLoad() {
             super.viewDidLoad()
             self.tableView.reloadData(withLogs: self.logs)
+            self.navigationItem.rightBarButtonItem = UIBarButtonItem.init(title: "email", style: .plain, target: self, action: #selector(sendEmail))
         }
         
+        // https://qiita.com/YumaInaura/items/31838a72678fa09d7e19
+        func platform() -> String {
+            var size = 0
+            sysctlbyname("hw.machine", nil, &size, nil, 0)
+            var machine = [CChar](repeating: 0, count: size)
+            sysctlbyname("hw.machine", &machine, &size, nil, 0)
+            return String(cString: machine)
+        }
+        
+        @objc func sendEmail() {
+            let composeViewController = MFMailComposeViewController()
+        
+            composeViewController.mailComposeDelegate = self
+            composeViewController.setSubject("Console Log - \(self.platform()) - \(UIDevice.current.systemVersion) - \(CFBundleGetValueForInfoDictionaryKey(CFBundleGetMainBundle(), kCFBundleVersionKey)! as! String)")
+            guard !logs.isEmpty else {
+                return
+            }
+            var string = ""
+            for log in logs {
+                string.append(ConsoleVC.LogListView.attriForLog(log: log).string + "\n")
+            }
+            composeViewController.addAttachmentData(string.data(using: .utf8)!, mimeType: "Plain text", fileName: self.name)
+            self.present(composeViewController, animated: true, completion: nil)
+        }
+        
+        public func mailComposeController(_ controller: MFMailComposeViewController, didFinishWith result: MFMailComposeResult, error: Error?) {
+            controller.dismiss(animated: true, completion: nil)
+        }
     }
 }
 #endif

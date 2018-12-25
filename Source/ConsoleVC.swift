@@ -22,6 +22,7 @@ class ConsoleVC: UIViewController {
     var tappedClose: (() -> Void)?
     
     convenience init() {
+        
         self.init(nibName: nil, bundle: nil)
     }
     
@@ -210,19 +211,6 @@ class ConsoleVC: UIViewController {
         let alert = UIAlertController(title: nil, message: nil, preferredStyle: .actionSheet)
         
         let defaultActions = [
-            UIAlertAction(title: "send log by mail", style: .default) { action in
-                if let data = Console.Log.DiskOutput.fileData {
-                    let composeViewController = MFMailComposeViewController()
-                    composeViewController.mailComposeDelegate = self
-                    composeViewController.setSubject("Console Log")
-                    composeViewController.addAttachmentData(data, mimeType: "Plain text", fileName: Console.Log.DiskOutput.curFileName!)
-                    self.present(composeViewController, animated: true, completion: nil)
-                } else {
-                    let alert = UIAlertController.init(title: "Notice!", message: "No log, find history logs in: " + Console.Log.DiskOutput.outputDirectory, preferredStyle: UIAlertController.Style.alert)
-                    alert.addAction(UIAlertAction.init(title: "Ok", style: .default, handler: nil))
-                    self.present(alert, animated: true, completion: nil)
-                }
-            },
             UIAlertAction(title: "clear", style: .default) { (action: UIAlertAction) in
                 self.filteredLogs?.removeAll()
                 Console.clear()

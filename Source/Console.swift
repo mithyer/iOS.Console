@@ -152,7 +152,7 @@ extension Console.Log {
                 try! fileManager.createDirectory(atPath: outputDirectory, withIntermediateDirectories: true, attributes: nil)
             }
             let now = Date()
-            let nowString = Console.dateFormatter.string(from: now)
+            let nowString = CFBundleGetValueForInfoDictionaryKey(CFBundleGetMainBundle(), kCFBundleVersionKey)! as! String + "_" + Console.dateFormatter.string(from: now)
             curFilePath = outputDirectory + nowString
             curFileName = nowString
             if !fileManager.fileExists(atPath: curFilePath!) {
