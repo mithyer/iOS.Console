@@ -142,7 +142,14 @@ extension Console.Log {
         
         static var curFileName: String?
         static var curFilePath: String?
-        static let outputDirectory = NSSearchPathForDirectoriesInDomains(.cachesDirectory, .userDomainMask, true).first! + "/ry/Console/"
+        static let outputDirectory: String = {
+            var path = NSSearchPathForDirectoriesInDomains(.cachesDirectory, .userDomainMask, true).first!
+            path += "/ry/\(Bundle.init(for: DiskOutput.self).bundleIdentifier!)/console"
+            #if DEBUG
+            path += "/debug"
+            #endif
+            return path
+        }()
         static let encoder = JSONEncoder()
         static let decoder = JSONDecoder()
         
